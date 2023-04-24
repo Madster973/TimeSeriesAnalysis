@@ -31,11 +31,12 @@ FRED_INDICATORS = ['GDP', 'GDPC1', 'GDPPOT', 'NYGDPMKTPCDWLD',         # 1. Grow
 ETF_INDICATORS = ['VDE.US','VHT.US']
 
 app = dash.Dash(__name__)
+server = app.server
 auth = dash_auth.BasicAuth(
     app,
     VALID_USERNAME_PASSWORD_PAIRS
 )
-server = app.server
+
 
 # Define app layout with a navigation bar and empty page content
 app.layout = html.Div([
