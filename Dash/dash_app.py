@@ -9,6 +9,9 @@ import plotly.graph_objects as go
 import matplotlib.ticker as mtick
 from dash import Dash, dcc, html, Input, Output
 import dash_auth
+import logging
+logging.basicConfig(filename='error.log', level=logging.DEBUG)
+
 
 img_src = 'assets/wordcloud.png'
 # Keep this out of source code repository - save in a file or a database
@@ -35,7 +38,6 @@ auth = dash_auth.BasicAuth(
     app,
     VALID_USERNAME_PASSWORD_PAIRS
 )
-server = app.server
 
 # Define app layout with a navigation bar and empty page content
 app.layout = html.Div([
@@ -129,7 +131,11 @@ def update_graph(selected_option):
     return fig
 # , style={'textAlign': 'center'}
 if __name__ == '__main__':
-    app.run_server()
+    try:
+        app.run_server()
+    except Exception as e:
+        print(e)
+        logging.exception(e)
 
 
 
