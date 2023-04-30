@@ -9,7 +9,7 @@ import numpy as np
 # password = "GS5iR2Heom7qmz9q"
 # hostname = "timeseries.zx4n7pp.mongodb.net"
 # port = ""
-database_name = "TimeSeries_copy"
+database_name = "TimeSeries_prod"
 
 # Create a connection string using the format mongodb://username:password@hostname:port/database_name
 connection_string = f"mongodb+srv://Chashivmad:GS5iR2Heom7qmz9q@timeseries.zx4n7pp.mongodb.net/?retryWrites=true&w=majority"
@@ -291,6 +291,11 @@ clf.fit(X_train, y_train)
 
 y_pred_clf = clf.predict(X_test)
 df2 = pd.DataFrame({'Actual': y_test, 'Predicted':y_pred_clf})
+df2.reset_index(inplace=True)
+data_list_ins = df2.to_dict(orient='records')
+# temp = []
+collection = db.create_collection("VDE.US_PRED")
+collection.insert_many(data_list_ins)
 
 # Classification for VHT
 X_VHT = macro_copy[X_keys]
@@ -307,7 +312,11 @@ clf.fit(X_train_vht, y_train_vht)
 
 y_pred_clf_vht = clf.predict(X_test)
 df3 = pd.DataFrame({'Actual': y_test_vht, 'Predicted':y_pred_clf_vht})
-
+df3.reset_index(inplace=True)
+data_list_ins = df3.to_dict(orient='records')
+# temp = []
+collection = db.create_collection("VHT.US_PRED")
+collection.insert_many(data_list_ins)
 
 # # Random Forest regressor : Actual vs. Predicted graph
 

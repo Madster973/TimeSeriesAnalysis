@@ -2,7 +2,7 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
-from util import db,df2, df3
+# from util import db
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -10,6 +10,7 @@ import matplotlib.ticker as mtick
 from dash import Dash, dcc, html, Input, Output
 import dash_auth
 import logging
+import pymongo
 logging.basicConfig(filename='error.log', level=logging.DEBUG)
 
 
@@ -18,6 +19,17 @@ img_src = 'assets/wordcloud.png'
 VALID_USERNAME_PASSWORD_PAIRS = {
     'hello': 'world'
 }
+
+database_name = "TimeSeries_prod"
+
+# Create a connection string using the format mongodb://username:password@hostname:port/database_name
+connection_string = f"mongodb+srv://Chashivmad:GS5iR2Heom7qmz9q@timeseries.zx4n7pp.mongodb.net/?retryWrites=true&w=majority"
+
+# Connect to MongoDB using the connection string
+client = pymongo.MongoClient(connection_string)
+
+# Access a specific database and collection
+db = client[database_name]
 
 
 FRED_INDICATORS = ['GDP', 'GDPC1', 'GDPPOT', 'NYGDPMKTPCDWLD',         # 1. Growth
@@ -34,7 +46,6 @@ FRED_INDICATORS = ['GDP', 'GDPC1', 'GDPPOT', 'NYGDPMKTPCDWLD',         # 1. Grow
 ETF_INDICATORS = ['VDE.US','VHT.US']
 
 app = dash.Dash(__name__)
-server = app.server
 auth = dash_auth.BasicAuth(
     app,
     VALID_USERNAME_PASSWORD_PAIRS
@@ -97,7 +108,7 @@ def display_page(pathname):
 def update_graph(selected_option):
     collection = db[selected_option]
     data = pd.DataFrame(list(collection.find()))
-    print(selected_option)
+    print(data)
     # filtered_data = data[data['<column-containing-options>'] == selected_option]
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=data['DATE'],
@@ -112,19 +123,31 @@ def update_graph(selected_option):
 @app.callback(Output('my-graph_ETF', 'figure'),
               Input('demo-dropdown_ETF', 'value'))
 def update_graph(selected_option):
-    collection = db[selected_option]
-    data = pd.DataFrame(list(collection.find()))
-    print(selected_option)
+#     collection = db[selected_option]
+#     data = pd.DataFrame(list(collection.find()))
+    # print(selected_option)
     # filtered_data = data[data['<column-containing-options>'] == selected_option]
     if selected_option == 'VDE.US':
+        
+        collection = db["VDE.US_PRED"]
+        df_vde = pd.DataFrame(list(collection.find({},{"_id":0})))
+        pd.to_datetime(df_vde['index'])
+        df_vde = df_vde.set_index('index')
+        print(df_vde)
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df2.index, y=df2['Actual'], name='Actual'))
-        fig.add_trace(go.Scatter(x=df2.index, y=df2['Predicted'], name='Predicted'))
+        fig.add_trace(go.Scatter(x=df_vde.index, y=df_vde['Actual'], name='Actual'))
+        fig.add_trace(go.Scatter(x=df_vde.index, y=df_vde['Predicted'], name='Predicted'))
+
 
     else:
+        
+        collection = db["VHT.US_PRED"]
+        df_vht = pd.DataFrame(list(collection.find({},{"_id":0})))
+        pd.to_datetime(df_vht['index'])
+        df_vht = df_vht.set_index('index')
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df3.index, y=df3['Actual'], name='Actual'))
-        fig.add_trace(go.Scatter(x=df3.index, y=df3['Predicted'], name='Predicted'))
+        fig.add_trace(go.Scatter(x=df_vht.index, y=df_vht['Actual'], name='Actual'))
+        fig.add_trace(go.Scatter(x=df_vht.index, y=df_vht['Predicted'], name='Predicted'))
     
     fig.update_layout(xaxis_title='Date',
                     yaxis_title='value')
@@ -132,8 +155,11 @@ def update_graph(selected_option):
     return fig
 # , style={'textAlign': 'center'}
 if __name__ == '__main__':
-    app.run_server()
-
+    try:
+        app.run_server()
+    except Exception as e:
+        print(e)
+        logging.exception(e)
 
 
 
