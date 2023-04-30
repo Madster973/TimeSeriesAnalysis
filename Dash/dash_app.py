@@ -31,6 +31,7 @@ client = pymongo.MongoClient(connection_string)
 # Access a specific database and collection
 db = client[database_name]
 
+server = app.server
 
 FRED_INDICATORS = ['GDP', 'GDPC1', 'GDPPOT', 'NYGDPMKTPCDWLD',         # 1. Growth
                    'CPIAUCSL', 'CPILFESL', 'GDPDEF',                   # 2. Prices and Inflation
