@@ -30,9 +30,6 @@ client = pymongo.MongoClient(connection_string)
 
 # Access a specific database and collection
 db = client[database_name]
-
-server = app.server
-
 FRED_INDICATORS = ['GDP', 'GDPC1', 'GDPPOT', 'NYGDPMKTPCDWLD',         # 1. Growth
                    'CPIAUCSL', 'CPILFESL', 'GDPDEF',                   # 2. Prices and Inflation
                    'M1SL', 'WM1NS', 'WM2NS', 'M1V', 'M2V', 'WALCL',    # 3. Money Supply
@@ -51,6 +48,7 @@ auth = dash_auth.BasicAuth(
     app,
     VALID_USERNAME_PASSWORD_PAIRS
 )
+server = app.server
 
 # Define app layout with a navigation bar and empty page content
 app.layout = html.Div([
