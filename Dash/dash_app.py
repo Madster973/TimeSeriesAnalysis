@@ -132,11 +132,8 @@ def update_graph(selected_option):
     return fig
 # , style={'textAlign': 'center'}
 if __name__ == '__main__':
-    try:
-        app.run_server()
-    except Exception as e:
-        print(e)
-        logging.exception(e)
+    app.run_server()
+
 
 
 
